@@ -39,27 +39,27 @@ func init() {
 }
 
 func TestContext(t *testing.T) {
-    ctx := fig.NewSetting()
+    ctx := fig.New()
     err := ctx.LoadValue(strings.NewReader(test_ctx_str))
     if err != nil {
         t.Fatal(err)
     }
 
-    v, ok := ctx.Get("Value.LogResponse")
-    if !ok {
+    v := ctx.Get("Value.LogResponse", "")
+    if v == "" {
         t.Fatal("Value.LogResponse not found")
     }
     t.Log("env value:", v)
 
-    v, ok = ctx.Get("Value.DataSources.default.DriverName")
-    if !ok {
+    v = ctx.Get("Value.DataSources.default.DriverName", "")
+    if v == "" {
         t.Fatal("Value.DataSources.default.DriverName not found")
     }
     t.Log("Value.DataSources.default.DriverName value:", v)
 }
 
 func TestContextGetValue(t *testing.T) {
-    ctx := fig.NewSetting()
+    ctx := fig.New()
     err := ctx.LoadValue(strings.NewReader(test_ctx_str))
     if err != nil {
         t.Fatal(err)
@@ -90,34 +90,34 @@ func TestContextGetValue(t *testing.T) {
 }
 
 func TestFromCache(t *testing.T) {
-    ctx := fig.NewSetting()
+    ctx := fig.New()
     err := ctx.LoadValue(strings.NewReader(test_ctx_str))
     if err != nil {
         t.Fatal(err)
     }
 
-    v, ok := ctx.Get("Value.LogResponse")
-    if !ok {
+    v := ctx.Get("Value.LogResponse", "")
+    if v == "" {
         t.Fatal("Value.LogResponse not found")
     }
     t.Log("env value:", v)
 
-    v, ok = ctx.Get("Value.LogResponse")
-    if !ok {
+    v = ctx.Get("Value.LogResponse", "")
+    if v == "" {
         t.Fatal("Value.LogResponse not found")
     }
     t.Log("env value:", v)
 }
 
 func BenchmarkGet(b *testing.B) {
-    ctx := fig.NewSetting()
+    ctx := fig.New()
     err := ctx.LoadValue(strings.NewReader(test_ctx_str))
     if err != nil {
         b.Fatal(err)
     }
     for i := 0; i < b.N; i++ {
-        v, ok := ctx.Get("Value.LogResponse")
-        if v == "" || !ok {
+        v := ctx.Get("Value.LogResponse", "")
+        if v == "" {
             b.Fatal("Value.LogResponse not found")
         }
     }

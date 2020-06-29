@@ -19,9 +19,9 @@ import (
 
 type Value = map[string]interface{}
 
-type Opt func(ctx *DefaultSetting) error
+type Opt func(ctx *DefaultProperties) error
 
-type DefaultSetting struct {
+type DefaultProperties struct {
 	Value *Value
 	Env   map[string]string
 
@@ -31,10 +31,10 @@ type DefaultSetting struct {
 	lock  sync.RWMutex
 }
 
-var Default *DefaultSetting = NewSetting()
+var Default *DefaultProperties = New()
 
-func NewSetting(opts ...Opt) *DefaultSetting {
-	ret := &DefaultSetting{
+func New(opts ...Opt) *DefaultProperties {
+	ret := &DefaultProperties{
 		Value: nil,
 		Env:   prop.GetEnvs(),
 
@@ -55,23 +55,23 @@ func NewSetting(opts ...Opt) *DefaultSetting {
 }
 
 func SetValueReader(r ValueReader) Opt {
-	return func(ctx *DefaultSetting) error {
+	return func(ctx *DefaultProperties) error {
 		ctx.SetValueReader(r)
 		return nil
 	}
 }
 
 func SetValue(r io.Reader) Opt {
-	return func(ctx *DefaultSetting) error {
+	return func(ctx *DefaultProperties) error {
 		return ctx.LoadValue(r)
 	}
 }
 
-func (ctx *DefaultSetting) SetValueReader(r ValueReader) {
+func (ctx *DefaultProperties) SetValueReader(r ValueReader) {
 	ctx.reader = r
 }
 
-func (ctx *DefaultSetting) RefreshEnv() {
+func (ctx *DefaultProperties) RefreshEnv() {
 	ctx.lock.Lock()
 	defer ctx.lock.Unlock()
 	ctx.cache = map[string]interface{}{}
@@ -79,7 +79,7 @@ func (ctx *DefaultSetting) RefreshEnv() {
 	ctx.Env = prop.GetEnvs()
 }
 
-func (ctx *DefaultSetting) LoadValue(r io.Reader) error {
+func (ctx *DefaultProperties) LoadValue(r io.Reader) error {
 	ctx.lock.Lock()
 	defer ctx.lock.Unlock()
 	ctx.cache = map[string]interface{}{}
@@ -101,9 +101,9 @@ func (ctx *DefaultSetting) LoadValue(r io.Reader) error {
 
 // Env.ENVNAME
 // Value.A.B.C
-func (ctx *DefaultSetting) Get(key string) (string, bool) {
+func (ctx *DefaultProperties) Get(key string, defaultValue string) string {
 	if key == "" {
-		return "", false
+		return defaultValue
 	}
 
 	ctx.lock.Lock()
@@ -111,30 +111,30 @@ func (ctx *DefaultSetting) Get(key string) (string, bool) {
 
 	if v, ok := ctx.cache[key]; ok {
 		if ret, ok := v.(string); ok {
-			return ret, true
+			return ret
 		}
 	}
 
 	tempKey := "{{ ." + key + "}}"
 	tpl, ok := template.New("").Option("missingkey=error").Parse(tempKey)
 	if ok != nil {
-		log.Info("key: %s not found(parse error)")
-		return "", false
+		log.Info("key: %s not found(parse error)", key)
+		return defaultValue
 	}
 	b := strings.Builder{}
 	err := tpl.Execute(&b, ctx)
 	if err != nil {
-		return "", false
+		return defaultValue
 	}
 
 	ret := b.String()
 	ctx.cache[key] = ret
-	return ret, true
+	return ret
 }
 
 // Value.A.B.C
 // 依赖于ValueReader的序列化和反序列化方式
-func (ctx *DefaultSetting) GetValue(key string, result interface{}) error {
+func (ctx *DefaultProperties) GetValue(key string, result interface{}) error {
 	if key == "" {
 		return fmt.Errorf("key is empty")
 	}
@@ -157,7 +157,7 @@ func (ctx *DefaultSetting) GetValue(key string, result interface{}) error {
 		"load_value": ctx.reader.Serialize,
 	}).Parse(tempKey)
 	if ok != nil {
-		return fmt.Errorf("key: %s not found(parse error)")
+		return fmt.Errorf("key: %s not found(parse error)", key)
 	}
 	b := bytes.NewBuffer(nil)
 	err := tpl.Execute(b, ctx)
@@ -174,7 +174,7 @@ func (ctx *DefaultSetting) GetValue(key string, result interface{}) error {
 	return nil
 }
 
-func (ctx *DefaultSetting) ExecTemplate(r io.Reader) (io.Reader, error) {
+func (ctx *DefaultProperties) ExecTemplate(r io.Reader) (io.Reader, error) {
 	buf := bytes.NewBuffer(nil)
 
 	_, err := io.Copy(buf, r)
@@ -184,7 +184,7 @@ func (ctx *DefaultSetting) ExecTemplate(r io.Reader) (io.Reader, error) {
 
 	tpl, ok := template.New("").Option("missingkey=error").Parse(buf.String())
 	if ok != nil {
-		log.Info("key: %s not found(parse error)")
+		log.Info("parse error")
 		return nil, ok
 	}
 
