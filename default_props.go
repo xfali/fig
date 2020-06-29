@@ -36,10 +36,7 @@ var Default *DefaultProperties = New()
 func New(opts ...Opt) *DefaultProperties {
 	ret := &DefaultProperties{
 		Value: nil,
-		Env:   prop.GetEnvs(),
-
 		reader: &JsonValue{},
-
 		cache: map[string]interface{}{},
 	}
 
@@ -71,18 +68,12 @@ func (ctx *DefaultProperties) SetValueReader(r ValueReader) {
 	ctx.reader = r
 }
 
-func (ctx *DefaultProperties) RefreshEnv() {
-	ctx.lock.Lock()
-	defer ctx.lock.Unlock()
-	ctx.cache = map[string]interface{}{}
-
-	ctx.Env = prop.GetEnvs()
-}
-
 func (ctx *DefaultProperties) LoadValue(r io.Reader) error {
 	ctx.lock.Lock()
 	defer ctx.lock.Unlock()
+
 	ctx.cache = map[string]interface{}{}
+	ctx.Env = prop.GetEnvs()
 
 	if ctx.reader != nil {
 		r, err := ctx.ExecTemplate(r)

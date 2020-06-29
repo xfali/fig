@@ -16,16 +16,19 @@ type ValueReader interface {
 }
 
 type Properties interface {
-	//配置ValueReader
+	// 配置ValueReader
 	SetValueReader(r ValueReader)
-	//刷新环境变量
-	RefreshEnv()
-	//读取setting value
+
+	// 读取value
 	LoadValue(r io.Reader) error
-	// Env.ENVNAME
-	// Value.A.B.C
+
+	// param: key属性名称
+	// param: defaultValue: 默认值
+	// return: 属性值，如不存在返回默认值
 	Get(key string, defaultValue string) string
-	// Value.A.B.C
-	// 依赖于ValueReader的序列化和反序列化方式
+
+	// param: key属性名称
+	// param: result: 填充对象指针
+	// return: 正常返回nil,否则返回错误
 	GetValue(key string, result interface{}) error
 }
