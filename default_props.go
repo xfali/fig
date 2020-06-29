@@ -99,8 +99,7 @@ func (ctx *DefaultProperties) LoadValue(r io.Reader) error {
 	return nil
 }
 
-// Env.ENVNAME
-// Value.A.B.C
+// A.B.C
 func (ctx *DefaultProperties) Get(key string, defaultValue string) string {
 	if key == "" {
 		return defaultValue
@@ -122,7 +121,7 @@ func (ctx *DefaultProperties) Get(key string, defaultValue string) string {
 		return defaultValue
 	}
 	b := strings.Builder{}
-	err := tpl.Execute(&b, ctx)
+	err := tpl.Execute(&b, ctx.Value)
 	if err != nil {
 		return defaultValue
 	}
@@ -132,7 +131,6 @@ func (ctx *DefaultProperties) Get(key string, defaultValue string) string {
 	return ret
 }
 
-// Value.A.B.C
 // 依赖于ValueReader的序列化和反序列化方式
 func (ctx *DefaultProperties) GetValue(key string, result interface{}) error {
 	if key == "" {
@@ -160,7 +158,7 @@ func (ctx *DefaultProperties) GetValue(key string, result interface{}) error {
 		return fmt.Errorf("key: %s not found(parse error)", key)
 	}
 	b := bytes.NewBuffer(nil)
-	err := tpl.Execute(b, ctx)
+	err := tpl.Execute(b, ctx.Value)
 	if err != nil {
 		return fmt.Errorf("load from template failed: %s", b.String())
 	}

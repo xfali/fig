@@ -45,17 +45,17 @@ func TestContext(t *testing.T) {
         t.Fatal(err)
     }
 
-    v := ctx.Get("Value.LogResponse", "")
+    v := ctx.Get("LogResponse", "")
     if v == "" {
-        t.Fatal("Value.LogResponse not found")
+        t.Fatal("LogResponse not found")
     }
     t.Log("env value:", v)
 
-    v = ctx.Get("Value.DataSources.default.DriverName", "")
+    v = ctx.Get("DataSources.default.DriverName", "")
     if v == "" {
-        t.Fatal("Value.DataSources.default.DriverName not found")
+        t.Fatal("DataSources.default.DriverName not found")
     }
-    t.Log("Value.DataSources.default.DriverName value:", v)
+    t.Log("DataSources.default.DriverName value:", v)
 }
 
 func TestContextGetValue(t *testing.T) {
@@ -66,14 +66,14 @@ func TestContextGetValue(t *testing.T) {
     }
 
     v := ""
-    err = ctx.GetValue("Value.Env", &v)
+    err = ctx.GetValue("Env", &v)
     if err != nil {
         t.Fatal(err)
     }
     t.Log(v)
 
     p := ""
-    err = ctx.GetValue("Value.ServerPort", &p)
+    err = ctx.GetValue("ServerPort", &p)
     if err != nil {
         t.Log(err)
     } else {
@@ -81,7 +81,7 @@ func TestContextGetValue(t *testing.T) {
     }
 
     port := 0
-    err = ctx.GetValue("Value.ServerPort", &port)
+    err = ctx.GetValue("ServerPort", &port)
     if err != nil {
         t.Fatal(err)
     } else {
@@ -96,17 +96,17 @@ func TestFromCache(t *testing.T) {
         t.Fatal(err)
     }
 
-    v := ctx.Get("Value.LogResponse", "")
+    v := ctx.Get("LogResponse", "")
     if v == "" {
-        t.Fatal("Value.LogResponse not found")
+        t.Fatal("LogResponse not found")
     }
-    t.Log("env value:", v)
+    t.Log("LogResponse value:", v)
 
-    v = ctx.Get("Value.LogResponse", "")
+    v = ctx.Get("LogResponse", "")
     if v == "" {
-        t.Fatal("Value.LogResponse not found")
+        t.Fatal("LogResponse not found")
     }
-    t.Log("env value:", v)
+    t.Log("LogResponse value:", v)
 }
 
 func BenchmarkGet(b *testing.B) {
@@ -116,9 +116,9 @@ func BenchmarkGet(b *testing.B) {
         b.Fatal(err)
     }
     for i := 0; i < b.N; i++ {
-        v := ctx.Get("Value.LogResponse", "")
+        v := ctx.Get("LogResponse", "")
         if v == "" {
-            b.Fatal("Value.LogResponse not found")
+            b.Fatal("LogResponse not found")
         }
     }
 }
