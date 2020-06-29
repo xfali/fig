@@ -36,7 +36,7 @@ var Default *DefaultProperties = New()
 func New(opts ...Opt) *DefaultProperties {
 	ret := &DefaultProperties{
 		Value: nil,
-		reader: &JsonValue{},
+		reader: &JsonReader{},
 		cache: map[string]interface{}{},
 	}
 
@@ -185,9 +185,9 @@ func (ctx *DefaultProperties) ExecTemplate(r io.Reader) (io.Reader, error) {
 	return buf, nil
 }
 
-type JsonValue struct{}
+type JsonReader struct{}
 
-func (v *JsonValue) Read(r io.Reader) (*Value, error) {
+func (v *JsonReader) Read(r io.Reader) (*Value, error) {
 	buf := bytes.NewBuffer(nil)
 
 	_, err := io.Copy(buf, r)
@@ -205,11 +205,11 @@ func (v *JsonValue) Read(r io.Reader) (*Value, error) {
 	return &ret, nil
 }
 
-func (v *JsonValue) Serialize(o interface{}) (string, error) {
+func (v *JsonReader) Serialize(o interface{}) (string, error) {
 	b, err := json.Marshal(o)
 	return string(b), err
 }
 
-func (v *JsonValue) Deserialize(value string, result interface{}) error {
+func (v *JsonReader) Deserialize(value string, result interface{}) error {
 	return json.Unmarshal([]byte(value), result)
 }

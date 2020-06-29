@@ -79,7 +79,7 @@ func TestContext(t *testing.T) {
 
     t.Run("yaml", func(t *testing.T) {
         ctx := fig.New()
-        ctx.SetValueReader(&fig.YamlValue{})
+        ctx.SetValueReader(&fig.YamlReader{})
         err := ctx.LoadValue(strings.NewReader(test_yaml_str))
         if err != nil {
             t.Fatal(err)
@@ -166,7 +166,7 @@ func BenchmarkGet(b *testing.B) {
     })
 
     b.Run("yaml", func(b *testing.B) {
-        ctx := fig.New(fig.SetValueReader(&fig.YamlValue{}))
+        ctx := fig.New(fig.SetValueReader(&fig.YamlReader{}))
         err := ctx.LoadValue(strings.NewReader(test_yaml_str))
         if err != nil {
             b.Fatal(err)

@@ -12,9 +12,9 @@ import (
 	"io"
 )
 
-type YamlValue struct{}
+type YamlReader struct{}
 
-func (v *YamlValue) Read(r io.Reader) (*Value, error) {
+func (v *YamlReader) Read(r io.Reader) (*Value, error) {
 	buf := bytes.NewBuffer(nil)
 
 	_, err := io.Copy(buf, r)
@@ -32,11 +32,11 @@ func (v *YamlValue) Read(r io.Reader) (*Value, error) {
 	return &ret, nil
 }
 
-func (v *YamlValue) Serialize(o interface{}) (string, error) {
+func (v *YamlReader) Serialize(o interface{}) (string, error) {
 	b, err := yaml.Marshal(o)
 	return string(b), err
 }
 
-func (v *YamlValue) Deserialize(value string, result interface{}) error {
+func (v *YamlReader) Deserialize(value string, result interface{}) error {
 	return yaml.Unmarshal([]byte(value), result)
 }
