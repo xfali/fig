@@ -8,6 +8,7 @@ package fig
 import (
 	"errors"
 	"github.com/xfali/goutils/log"
+	"os"
 	"reflect"
 )
 
@@ -101,6 +102,27 @@ func GetFloat64(props Properties) func(key string, defaultValue float64) float64
 			return v
 		}
 	}
+}
+
+func LoadFile(filename string, reader ValueReader) (Properties, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	prop := New()
+	prop.SetValueReader(reader)
+	err = prop.LoadValue(f)
+	return prop, err
+}
+
+func LoadJsonFile(filename string) (Properties, error) {
+	return LoadFile(filename, &JsonReader{})
+}
+
+func LoadYamlFile(filename string) (Properties, error) {
+	return LoadFile(filename, &YamlReader{})
 }
 
 func Fill(prop Properties, result interface{}) error {

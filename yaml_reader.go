@@ -14,6 +14,10 @@ import (
 
 type YamlReader struct{}
 
+func NewYamlReader() *YamlReader {
+	return &YamlReader{}
+}
+
 func (v *YamlReader) Read(r io.Reader) (*Value, error) {
 	buf := bytes.NewBuffer(nil)
 

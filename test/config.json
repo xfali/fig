@@ -1,0 +1,19 @@
+{
+  "Env": "dev",
+  "LogResponse": true,
+  "LogRequestBody": true,
+  "LogLevel": 1,
+  "LogInnerLevel": 1,
+  "LogClient": true,
+  "ServerPort": 8080,
+
+  "DataSources": {
+    "default": {
+      "DriverName": "{{.Env.CONTEXT_TEST_ENV}}",
+      "DriverInfo": "root:123@tcp(localhost:3306)/test?charset=utf8",
+      "MaxConn": 1000,
+      "MaxIdleConn": 500,
+      "ConnMaxLifetime": 1000
+    }
+  }
+}

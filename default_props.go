@@ -35,9 +35,9 @@ var Default *DefaultProperties = New()
 
 func New(opts ...Opt) *DefaultProperties {
 	ret := &DefaultProperties{
-		Value: nil,
-		reader: &JsonReader{},
-		cache: map[string]interface{}{},
+		Value:  nil,
+		reader: &YamlReader{},
+		cache:  map[string]interface{}{},
 	}
 
 	for _, opt := range opts {
@@ -186,6 +186,10 @@ func (ctx *DefaultProperties) ExecTemplate(r io.Reader) (io.Reader, error) {
 }
 
 type JsonReader struct{}
+
+func NewJsonReader() *JsonReader {
+	return &JsonReader{}
+}
 
 func (v *JsonReader) Read(r io.Reader) (*Value, error) {
 	buf := bytes.NewBuffer(nil)

@@ -13,32 +13,32 @@ import (
 
 func TestUtil(t *testing.T) {
 	t.Run("yaml", func(t *testing.T) {
-		ctx := fig.New()
-		ctx.SetValueReader(&fig.YamlReader{})
-		err := ctx.LoadValue(strings.NewReader(test_yaml_str))
+		config := fig.New(fig.SetValueReader(&fig.JsonReader{}))
+		config.SetValueReader(&fig.YamlReader{})
+		err := config.LoadValue(strings.NewReader(test_yaml_str))
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		v := fig.GetBool(ctx)("LogResponse", false)
+		v := fig.GetBool(config)("LogResponse", false)
 		if v == false {
 			t.Fatal("LogResponse not found")
 		}
 		t.Log("LogResponse value:", v)
 
-		port := fig.GetInt(ctx)("ServerPort", -1)
+		port := fig.GetInt(config)("ServerPort", -1)
 		if port == -1 {
 			t.Fatal("ServerPort not found")
 		}
 		t.Log("port value:", port)
 
-		name := fig.GetString(ctx)("DataSources.default.DriverName", "")
+		name := fig.GetString(config)("DataSources.default.DriverName", "")
 		if name == "" {
 			t.Fatal("DataSources.default.DriverName not found")
 		}
 		t.Log("DataSources.default.DriverName value:", name)
 
-		floatValue := fig.GetFloat32(ctx)("Value.float", 0)
+		floatValue := fig.GetFloat32(config)("Value.float", 0)
 		if floatValue == 0 {
 			t.Fatal("Value.float not found")
 		}
@@ -57,16 +57,16 @@ type TestStruct struct {
 }
 
 func TestFill(t *testing.T) {
-	ctx := fig.New()
-	ctx.SetValueReader(&fig.YamlReader{})
-	err := ctx.LoadValue(strings.NewReader(test_yaml_str))
+	config := fig.New()
+	config.SetValueReader(&fig.YamlReader{})
+	err := config.LoadValue(strings.NewReader(test_yaml_str))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	test := TestStruct{}
-	ret := fig.Fill(ctx, &test)
-	
+	ret := fig.Fill(config, &test)
+
 	if ret != nil {
 		t.Fatal(ret)
 	} else {
