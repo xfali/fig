@@ -42,6 +42,8 @@ var test_yaml_str = `
   LogInnerLevel: 1
   LogClient: true
   ServerPort: 8080
+  Value:
+    float: 1.5
 
   DataSources: 
     default: 

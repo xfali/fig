@@ -5,6 +5,14 @@
 
 package fig
 
+import (
+	"errors"
+	"github.com/xfali/goutils/log"
+	"reflect"
+)
+
+const TagName = "fig"
+
 func GetString(props Properties) func(key string, defaultValue string) string {
 	return func(key string, defaultValue string) string {
 		return props.Get(key, defaultValue)
@@ -93,4 +101,36 @@ func GetFloat64(props Properties) func(key string, defaultValue float64) float64
 			return v
 		}
 	}
+}
+
+func Fill(prop Properties, result interface{}) error {
+	t := reflect.TypeOf(result)
+	v := reflect.ValueOf(result)
+
+	if t.Kind() != reflect.Ptr {
+		return errors.New("result must be ptr")
+	}
+	t = t.Elem()
+	v = v.Elem()
+
+	if t.Kind() != reflect.Struct {
+		return errors.New("result must be struct ptr")
+	}
+
+	for i := 0; i < v.NumField(); i++ {
+		field := t.Field(i)
+		tag := field.Tag.Get(TagName)
+		if tag != "" {
+			c := reflect.New(field.Type).Interface()
+			err := prop.GetValue(tag, c)
+			if err != nil {
+				log.Debug(err.Error())
+			}
+			fieldValue := v.Field(i)
+			if fieldValue.CanSet() {
+				fieldValue.Set(reflect.ValueOf(c).Elem())
+			}
+		}
+	}
+	return nil
 }
