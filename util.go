@@ -128,10 +128,17 @@ func LoadYamlFile(filename string) (Properties, error) {
 	return LoadFile(filename, &YamlReader{})
 }
 
+// param: prop 属性
+// param: result 填充的struct
+// result: result如果不为struct的指针返回错误，填充时异常返回错误
 func Fill(prop Properties, result interface{}) error {
 	return FillEx(prop, result, false)
 }
 
+// param: prop 属性
+// param: result 填充的struct
+// param: withField 是否根据field name填充
+// result: result如果不为struct的指针返回错误，填充时异常返回错误
 func FillEx(prop Properties, result interface{}, withField bool) error {
 	t := reflect.TypeOf(result)
 	v := reflect.ValueOf(result)
