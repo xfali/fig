@@ -12,7 +12,10 @@ import (
 	"reflect"
 )
 
-const TagName = "fig"
+const (
+	TagPrefixName = "figPx"
+	TagName       = "fig"
+)
 
 func GetString(props Properties) func(key string, defaultValue string) string {
 	return func(key string, defaultValue string) string {
@@ -126,6 +129,10 @@ func LoadYamlFile(filename string) (Properties, error) {
 }
 
 func Fill(prop Properties, result interface{}) error {
+	return FillEx(prop, result, false)
+}
+
+func FillEx(prop Properties, result interface{}, withField bool) error {
 	t := reflect.TypeOf(result)
 	v := reflect.ValueOf(result)
 
@@ -139,10 +146,27 @@ func Fill(prop Properties, result interface{}) error {
 		return errors.New("result must be struct ptr")
 	}
 
+	prefix := ""
 	for i := 0; i < v.NumField(); i++ {
 		field := t.Field(i)
-		tag := field.Tag.Get(TagName)
+		tag := field.Tag.Get(TagPrefixName)
 		if tag != "" {
+			prefix = tag
+			continue
+		}
+		tag = field.Tag.Get(TagName)
+		if tag != "" {
+			if tag == "-" {
+				continue
+			}
+		} else if withField {
+			tag = field.Name
+		}
+
+		if tag != "" {
+			if prefix != "" {
+				tag = prefix + "." + tag
+			}
 			c := reflect.New(field.Type).Interface()
 			err := prop.GetValue(tag, c)
 			if err != nil {

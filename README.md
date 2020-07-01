@@ -32,7 +32,26 @@ v := config.Get("DataSources.default.DriverName", "")
 port := 0
 err = config.GetValue("ServerPort", &port)
 ```
+## 读取环境变量
+在配置中使用{{.Env.ENV_NAME}}来配置读取环境变量值，fig在加载时自动使用ENV_NAME的值替换相应内容：
+```
+DataSources:
+  default:
+    DriverName: "{{.Env.CONTEXT_TEST_ENV}}"
+```
+
 ## 工具方法
+|  类型   | 说明  |
+|  :----  | :----  |
+| fig.GetString  | 获得string类型属性值 |
+| fig.GetBool  | 获得bool类型属性值 |
+| fig.GetInt  | 获得int类型属性值 |
+| fig.GetUint  | 获得uint类型属性值 |
+| fig.GetInt64  | 获得int64类型属性值 |
+| fig.GetUint64  | 获得uint64类型属性值 |
+| fig.GetFloat32  | 获得float32类型属性值 |
+| fig.GetFloat64  | 获得float64类型属性值 |
+用法：
 ```
 config, _ := fig.LoadFile("config.json", fig.NewJsonReader())
 
@@ -41,7 +60,9 @@ v := fig.GetBool(config)("LogResponse", false)
 floatValue := fig.GetFloat32(config)("Value.float", 0)
 ```
 
+
 ## tag
+### 属性值tag
 fig提供直接填充struct的field的方法，使用tag:"fig"来标识属性名称：
 ```
 type TestStruct struct {
@@ -52,6 +73,15 @@ type TestStruct struct {
 	FloatValue  float32 `fig:"Value.float"`
 	DriverName  string  `fig:"DataSources.default.DriverName"`
 	dummy3      int
+}
+```
+### 属性前缀tag
+可以使用tag:"figPx"表明属性的前缀，在此之后的所有fig tag都会自动增加此前缀：
+```
+type TestStruct2 struct {
+	x           string `figPx:"DataSources.default"`
+	MaxIdleConn int
+	DvrName     string `fig:"DriverName"`
 }
 ```
 使用fig.Fill方法根据tag填充struct：

@@ -88,3 +88,41 @@ func TestFill(t *testing.T) {
 		t.Log(test)
 	}
 }
+
+type TestStruct2 struct {
+	x           string `figPx:"DataSources.default"`
+	MaxIdleConn int
+	DvrName     string `fig:"DriverName"`
+	conn        int    `fig:"MaxConn"`
+	dummy3      int
+}
+
+func TestFillEx(t *testing.T) {
+	config := fig.New()
+	config.SetValueReader(&fig.YamlReader{})
+	err := config.LoadValue(strings.NewReader(test_yaml_str))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	test := TestStruct2{}
+	ret := fig.FillEx(config, &test, true)
+
+	if ret != nil {
+		t.Fatal(ret)
+	} else {
+		if test.MaxIdleConn != 500 {
+			t.Fatal("expect MaxIdleConn 500 got: ", test.MaxIdleConn)
+		}
+		if test.conn != 0 {
+			t.Fatal("expect conn 0 got: ", test.conn)
+		}
+		if test.DvrName != "ONLY FOR TEST" {
+			t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DvrName)
+		}
+		if test.dummy3 != 0 {
+			t.Fatal("dummy must be 0")
+		}
+		t.Log(test)
+	}
+}
