@@ -41,7 +41,7 @@ DataSources:
 ```
 
 ## 工具方法
-|  类型   | 说明  |
+|  方法   | 说明  |
 |  :----  | :----  |
 | fig.GetString  | 获得string类型属性值 |
 | fig.GetBool  | 获得bool类型属性值 |
@@ -51,6 +51,7 @@ DataSources:
 | fig.GetUint64  | 获得uint64类型属性值 |
 | fig.GetFloat32  | 获得float32类型属性值 |
 | fig.GetFloat64  | 获得float64类型属性值 |
+
 用法：
 ```
 config, _ := fig.LoadFile("config.json", fig.NewJsonReader())
