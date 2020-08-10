@@ -105,6 +105,61 @@ func TestFile(t *testing.T) {
 	})
 }
 
+func TestFileAll(t *testing.T) {
+	t.Run("json", func(t *testing.T) {
+		config, err := fig.LoadFile("config.json", fig.NewJsonReader())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		ret := map[string]interface{}{}
+		err = config.GetValue("", &ret)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if ret["ServerPort"].(float64) != 8080 {
+			t.Fatal("expect ServerPort but get ", ret["ServerPort"])
+		}
+		t.Log("value:", ret)
+
+		str := config.Get("", "")
+		if str == "" {
+			t.Fatal("str is empty")
+		}
+		t.Log(str)
+	})
+
+	t.Run("yaml", func(t *testing.T) {
+		f, err := os.Open("config.yaml")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+		config := fig.New()
+		config.SetValueReader(&fig.YamlReader{})
+		err = config.LoadValue(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		ret := map[string]interface{}{}
+		err = config.GetValue("", &ret)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if ret["ServerPort"].(int) != 8080 {
+			t.Fatal("expect ServerPort but get ", ret["ServerPort"])
+		}
+		t.Log("value:", ret)
+
+		str := config.Get("", "")
+		if str == "" {
+			t.Fatal("str is empty")
+		}
+		t.Log(str)
+	})
+}
+
 func TestContext(t *testing.T) {
 	t.Run("json", func(t *testing.T) {
 		config := fig.New(fig.SetValueReader(&fig.JsonReader{}))

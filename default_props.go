@@ -92,9 +92,9 @@ func (ctx *DefaultProperties) LoadValue(r io.Reader) error {
 
 // A.B.C
 func (ctx *DefaultProperties) Get(key string, defaultValue string) string {
-	if key == "" {
-		return defaultValue
-	}
+	//if key == "" {
+	//	return defaultValue
+	//}
 
 	ctx.lock.Lock()
 	defer ctx.lock.Unlock()
@@ -124,10 +124,9 @@ func (ctx *DefaultProperties) Get(key string, defaultValue string) string {
 
 // 依赖于ValueReader的序列化和反序列化方式
 func (ctx *DefaultProperties) GetValue(key string, result interface{}) error {
-	if key == "" {
-		return fmt.Errorf("key is empty")
-	}
-
+	//if key == "" {
+	//	return fmt.Errorf("key is empty")
+	//}
 	ctx.lock.Lock()
 	defer ctx.lock.Unlock()
 
