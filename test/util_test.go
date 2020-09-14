@@ -166,3 +166,73 @@ func TestFillEx(t *testing.T) {
 		}
 	})
 }
+
+type TestStruct3 struct {
+	x           string `valuePx:"DataSources.default"`
+	MaxIdleConn *int
+	DvrName     string `value:"DriverName"`
+	conn        int    `value:"MaxConn"`
+	dummy3      int
+}
+
+func TestFillExWithTagName(t *testing.T) {
+	t.Run("json", func(t *testing.T) {
+		config := fig.New()
+		config.SetValueReader(&fig.JsonReader{})
+		err := config.LoadValue(strings.NewReader(test_config_str))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		test := TestStruct3{}
+		ret := fig.FillExWithTagName(config, &test, true, "valuePx", "value")
+
+		if ret != nil {
+			t.Fatal(ret)
+		} else {
+			if *test.MaxIdleConn != 500 {
+				t.Fatal("expect MaxIdleConn 500 got: ", test.MaxIdleConn)
+			}
+			if test.conn != 0 {
+				t.Fatal("expect conn 0 got: ", test.conn)
+			}
+			if test.DvrName != "ONLY FOR TEST" {
+				t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DvrName)
+			}
+			if test.dummy3 != 0 {
+				t.Fatal("dummy must be 0")
+			}
+			t.Log(test)
+		}
+	})
+
+	t.Run("yaml", func(t *testing.T) {
+		config := fig.New()
+		config.SetValueReader(&fig.YamlReader{})
+		err := config.LoadValue(strings.NewReader(test_yaml_str))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		test := TestStruct3{}
+		ret := fig.FillExWithTagName(config, &test, true, "valuePx", "value")
+
+		if ret != nil {
+			t.Fatal(ret)
+		} else {
+			if *test.MaxIdleConn != 500 {
+				t.Fatal("expect MaxIdleConn 500 got: ", test.MaxIdleConn)
+			}
+			if test.conn != 0 {
+				t.Fatal("expect conn 0 got: ", test.conn)
+			}
+			if test.DvrName != "ONLY FOR TEST" {
+				t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DvrName)
+			}
+			if test.dummy3 != 0 {
+				t.Fatal("dummy must be 0")
+			}
+			t.Log(test)
+		}
+	})
+}

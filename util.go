@@ -140,6 +140,16 @@ func Fill(prop Properties, result interface{}) error {
 // param: withField 是否根据field name填充
 // result: result如果不为struct的指针返回错误，填充时异常返回错误
 func FillEx(prop Properties, result interface{}, withField bool) error {
+	return FillExWithTagName(prop, result, withField, TagPrefixName, TagName)
+}
+
+// param: prop 属性
+// param: result 填充的struct
+// param: withField 是否根据field name填充
+// param: tagPxName tag前缀名，后续都使用tagPxName定义的名称做前缀
+// param: tagName tag名
+// result: result如果不为struct的指针返回错误，填充时异常返回错误
+func FillExWithTagName(prop Properties, result interface{}, withField bool, tagPxName, tagName string) error {
 	t := reflect.TypeOf(result)
 	v := reflect.ValueOf(result)
 
@@ -156,12 +166,12 @@ func FillEx(prop Properties, result interface{}, withField bool) error {
 	prefix := ""
 	for i := 0; i < v.NumField(); i++ {
 		field := t.Field(i)
-		tag := field.Tag.Get(TagPrefixName)
+		tag := field.Tag.Get(tagPxName)
 		if tag != "" {
 			prefix = tag
 			continue
 		}
-		tag = field.Tag.Get(TagName)
+		tag = field.Tag.Get(tagName)
 		if tag != "" {
 			if tag == "-" {
 				continue
