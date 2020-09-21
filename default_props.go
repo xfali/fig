@@ -9,8 +9,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/xfali/goutils/log"
-	"github.com/xfali/goutils/prop"
 	"io"
 	"strings"
 	"sync"
@@ -45,7 +43,7 @@ func New(opts ...Opt) *DefaultProperties {
 	for _, opt := range opts {
 		err := opt(ret)
 		if err != nil {
-			log.Error("opt err! : %s\n", err.Error())
+			logf("opt err! : %s\n", err.Error())
 			return nil
 		}
 	}
@@ -86,7 +84,7 @@ func (ctx *DefaultProperties) ReadValue(r io.Reader) error {
 	defer ctx.lock.Unlock()
 
 	ctx.cache = map[string]interface{}{}
-	ctx.Env = prop.GetEnvs()
+	ctx.Env = GetEnvs()
 
 	if ctx.reader != nil {
 		r, err := ctx.ExecTemplate(r)
@@ -121,7 +119,7 @@ func (ctx *DefaultProperties) Get(key string, defaultValue string) string {
 	tempKey := "{{ ." + key + "}}"
 	tpl, ok := template.New("").Option("missingkey=error").Parse(tempKey)
 	if ok != nil {
-		log.Info("key: %s not found(parse error)", key)
+		logf("key: %s not found(parse error)", key)
 		return defaultValue
 	}
 	b := strings.Builder{}
@@ -185,7 +183,7 @@ func (ctx *DefaultProperties) ExecTemplate(r io.Reader) (io.Reader, error) {
 
 	tpl, ok := template.New("").Option("missingkey=error").Parse(buf.String())
 	if ok != nil {
-		log.Info("parse error")
+		logf("parse error")
 		return nil, ok
 	}
 
@@ -218,7 +216,7 @@ func (v *JsonReader) Read(r io.Reader) (*Value, error) {
 	}
 
 	ret := Value{}
-	log.Debug("value: %s\n", buf.String())
+	logf("value: %s\n", buf.String())
 	err = json.Unmarshal(buf.Bytes(), &ret)
 	if err != nil {
 		return nil, err

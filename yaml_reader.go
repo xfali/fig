@@ -8,7 +8,6 @@ package fig
 import (
 	"bytes"
 	"github.com/ghodss/yaml"
-	"github.com/xfali/goutils/log"
 	"io"
 )
 
@@ -33,7 +32,7 @@ func (v *YamlReader) Read(r io.Reader) (*Value, error) {
 	}
 
 	ret := Value{}
-	log.Debug("value: %s\n", buf.String())
+	logf("value: %s\n", buf.String())
 	err = yaml.Unmarshal(buf.Bytes(), &ret)
 	if err != nil {
 		return nil, err

@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 var test_config_str = `
@@ -185,7 +186,7 @@ func TestContext(t *testing.T) {
 
 	t.Run("yaml", func(t *testing.T) {
 		config := fig.New()
-		config.SetValueReader(&fig.YamlReader{})
+		config.SetValueReader(fig.NewYamlReader())
 		config.SetValueLoader(fig.NewYamlLoader())
 		err := config.ReadValue(strings.NewReader(test_yaml_str))
 		if err != nil {
@@ -318,11 +319,11 @@ func TestContextGetValue(t *testing.T) {
 			t.Fatal(err, "ret [ default ] is nil")
 		} else {
 			if ret["default"].DriverInfo != "root:123@tcp(localhost:3306)/test?charset=utf8" {
-				t.Log("expect have value but get: ", ret["default"].DriverInfo, "yaml not support")
+				t.Fatal("expect have value but get: ", ret["default"].DriverInfo, "yaml not support")
 			}
 
 			if ret["default"].MaxIdleConn != 500 {
-				t.Log("expect 500 but get: ", ret["default"].MaxIdleConn, "yaml not support")
+				t.Fatal("expect 500 but get: ", ret["default"].MaxIdleConn, "yaml not support")
 			}
 			t.Log(ret["default"])
 		}
@@ -333,11 +334,11 @@ func TestContextGetValue(t *testing.T) {
 			t.Fatal(err, "ret [ default ] is nil")
 		} else {
 			if ret2["default"].DriverInfo != "root:123@tcp(localhost:3306)/test?charset=utf8" {
-				t.Log("expect have value but get: ", ret2["default"].DriverInfo, "yaml not support")
+				t.Fatal("expect have value but get: ", ret2["default"].DriverInfo, "yaml not support")
 			}
 
 			if ret2["default"].MaxIdleConn != 500 {
-				t.Log("expect 500 but get: ", ret2["default"].MaxIdleConn, "yaml not support")
+				t.Fatal("expect 500 but get: ", ret2["default"].MaxIdleConn, "yaml not support")
 			}
 			t.Log(ret2["default"])
 		}
@@ -429,32 +430,60 @@ func TestFromCache(t *testing.T) {
 	t.Log("LogResponse value:", v)
 }
 
-func BenchmarkGet(b *testing.B) {
-	b.Run("json", func(b *testing.B) {
-		config := fig.New(fig.SetValueReader(&fig.JsonReader{}))
-		err := config.ReadValue(strings.NewReader(test_config_str))
-		if err != nil {
-			b.Fatal(err)
-		}
-		for i := 0; i < b.N; i++ {
-			v := config.Get("LogResponse", "")
-			if v == "" {
-				b.Fatal("LogResponse not found")
-			}
-		}
-	})
+func TestMerge(t *testing.T) {
+	s1 := fig.NewSettableProperties()
+	s1.SetValueReader(fig.NewYamlReader())
+	s1.SetValueLoader(fig.NewYamlLoader())
+	err := s1.ReadValue(strings.NewReader(test_yaml_str))
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	b.Run("yaml", func(b *testing.B) {
-		config := fig.New(fig.SetValueReader(&fig.YamlReader{}))
-		err := config.ReadValue(strings.NewReader(test_yaml_str))
-		if err != nil {
-			b.Fatal(err)
-		}
-		for i := 0; i < b.N; i++ {
-			v := config.Get("LogResponse", "")
-			if v == "" {
-				b.Fatal("LogResponse not found")
-			}
-		}
-	})
+	s2 := fig.NewSettableProperties()
+
+	s1.Set("a", 1)
+	s1.Set("b", "2")
+	s1.Set("c", 3.14)
+
+	s2.Set("a", -1)
+	s2.Set("b", "-2")
+	s2.Set("c", -3.14)
+	s2.Set("d", time.Now())
+
+	m := fig.MergeProperties(s1, s2)
+
+	v := s1.Get("LogResponse", "")
+	if v == "" {
+		t.Fatal("LogResponse not found")
+	} else {
+		t.Log(v)
+	}
+
+	ret := m.Get("a", "")
+	if ret != "1" {
+		t.Fatal("expect 1 but get ", ret)
+	} else {
+		t.Log(ret)
+	}
+
+	ret = m.Get("b", "")
+	if ret != "2" {
+		t.Fatal("expect 2 but get ", ret)
+	} else {
+		t.Log(ret)
+	}
+
+	ret = m.Get("c", "")
+	if ret != "3.14" {
+		t.Fatal("expect 3.14 but get ", ret)
+	} else {
+		t.Log(ret)
+	}
+
+	ret = m.Get("d", "")
+	if ret == "" {
+		t.Fatal("expect time but get ", ret)
+	} else {
+		t.Log(ret)
+	}
 }

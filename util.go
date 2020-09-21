@@ -7,9 +7,10 @@ package fig
 
 import (
 	"errors"
-	"github.com/xfali/goutils/log"
+	"fmt"
 	"os"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -188,7 +189,7 @@ func FillExWithTagName(prop Properties, result interface{}, withField bool, tagP
 			c := reflect.New(field.Type).Interface()
 			err := prop.GetValue(tag, c)
 			if err != nil {
-				log.Debug(err.Error())
+				logf(err.Error())
 			}
 			fieldValue := v.Field(i)
 			if fieldValue.CanSet() {
@@ -197,4 +198,31 @@ func FillExWithTagName(prop Properties, result interface{}, withField bool, tagP
 		}
 	}
 	return nil
+}
+
+func GetEnvs() map[string]string {
+	s := os.Environ()
+	ret := map[string]string{}
+	for _, env := range s {
+		env := strings.TrimSpace(env)
+		if env != "" {
+			pair := strings.Split(env, "=")
+			if len(pair) == 2 {
+				ret[pair[0]] = pair[1]
+			}
+		}
+	}
+
+	return ret
+}
+
+type logFunc func(format string, o ...interface{})
+
+var logf logFunc = func(format string, o ...interface{}) {
+	fmt.Printf(format, o...)
+}
+
+// 配置fig的内置log
+func SetLog(log logFunc) {
+	logf = log
 }
