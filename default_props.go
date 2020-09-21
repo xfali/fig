@@ -26,17 +26,19 @@ type DefaultProperties struct {
 	Env   map[string]string
 
 	reader ValueReader
+	loader ValueLoader
 
 	cache map[string]interface{}
 	lock  sync.RWMutex
 }
 
-var Default *DefaultProperties = New()
+var Default Properties = New()
 
 func New(opts ...Opt) *DefaultProperties {
 	ret := &DefaultProperties{
 		Value:  nil,
-		reader: &YamlReader{},
+		reader: NewYamlReader(),
+		loader: NewYamlLoader(),
 		cache:  map[string]interface{}{},
 	}
 
@@ -58,9 +60,16 @@ func SetValueReader(r ValueReader) Opt {
 	}
 }
 
+func SetValueLoader(l ValueLoader) Opt {
+	return func(ctx *DefaultProperties) error {
+		ctx.SetValueLoader(l)
+		return nil
+	}
+}
+
 func SetValue(r io.Reader) Opt {
 	return func(ctx *DefaultProperties) error {
-		return ctx.LoadValue(r)
+		return ctx.ReadValue(r)
 	}
 }
 
@@ -68,7 +77,11 @@ func (ctx *DefaultProperties) SetValueReader(r ValueReader) {
 	ctx.reader = r
 }
 
-func (ctx *DefaultProperties) LoadValue(r io.Reader) error {
+func (ctx *DefaultProperties) SetValueLoader(l ValueLoader) {
+	ctx.loader = l
+}
+
+func (ctx *DefaultProperties) ReadValue(r io.Reader) error {
 	ctx.lock.Lock()
 	defer ctx.lock.Unlock()
 
@@ -132,7 +145,7 @@ func (ctx *DefaultProperties) GetValue(key string, result interface{}) error {
 
 	if v, ok := ctx.cache[key]; ok {
 		if ret, ok := v.(string); ok {
-			err := ctx.reader.Deserialize(ret, result)
+			err := ctx.loader.Deserialize(ret, result)
 			if err != nil {
 				return fmt.Errorf("Unmarshal from cache error: %s, data: %s ", err.Error(), ret)
 			}
@@ -142,7 +155,7 @@ func (ctx *DefaultProperties) GetValue(key string, result interface{}) error {
 
 	tempKey := "{{ load_value ." + key + "}}"
 	tpl, ok := template.New("").Option("missingkey=error").Funcs(template.FuncMap{
-		"load_value": ctx.reader.Serialize,
+		"load_value": ctx.loader.Serialize,
 	}).Parse(tempKey)
 	if ok != nil {
 		return fmt.Errorf("key: %s not found(parse error)", key)
@@ -150,12 +163,12 @@ func (ctx *DefaultProperties) GetValue(key string, result interface{}) error {
 	b := bytes.NewBuffer(nil)
 	err := tpl.Execute(b, ctx.Value)
 	if err != nil {
-		return fmt.Errorf("load from template failed: %s", b.String())
+		return fmt.Errorf("load from template failed: err: %s data: %s", err.Error(), b.String())
 	}
 
 	data := b.String()
 	ctx.cache[key] = data
-	err = ctx.reader.Deserialize(data, result)
+	err = ctx.loader.Deserialize(data, result)
 	if err != nil {
 		return fmt.Errorf("Unmarshal error: %s, data: %s ", err.Error(), b.String())
 	}
@@ -190,6 +203,12 @@ func NewJsonReader() *JsonReader {
 	return &JsonReader{}
 }
 
+type JsonLoader struct{}
+
+func NewJsonLoader() *JsonLoader {
+	return &JsonLoader{}
+}
+
 func (v *JsonReader) Read(r io.Reader) (*Value, error) {
 	buf := bytes.NewBuffer(nil)
 
@@ -208,11 +227,18 @@ func (v *JsonReader) Read(r io.Reader) (*Value, error) {
 	return &ret, nil
 }
 
-func (v *JsonReader) Serialize(o interface{}) (string, error) {
+func (v *JsonLoader) Serialize(o interface{}) (string, error) {
 	b, err := json.Marshal(o)
 	return string(b), err
 }
 
-func (v *JsonReader) Deserialize(value string, result interface{}) error {
+func (v *JsonLoader) Deserialize(value string, result interface{}) error {
+	//t := reflect.TypeOf(result)
+	//if t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.String {
+	//	v := reflect.ValueOf(result)
+	//	v = v.Elem()
+	//	v.SetString(value)
+	//	return nil
+	//}
 	return json.Unmarshal([]byte(value), result)
 }

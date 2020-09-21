@@ -9,10 +9,21 @@ import (
 	"io"
 )
 
+type Serializer interface {
+	Serialize(o interface{}) (string, error)
+}
+
+type Deserializer interface {
+	Deserialize(v string, result interface{}) error
+}
+
 type ValueReader interface {
 	Read(r io.Reader) (*Value, error)
-	Serialize(o interface{}) (string, error)
-	Deserialize(v string, result interface{}) error
+}
+
+type ValueLoader interface {
+	Serializer
+	Deserializer
 }
 
 type Properties interface {
@@ -20,7 +31,10 @@ type Properties interface {
 	SetValueReader(r ValueReader)
 
 	// 读取value
-	LoadValue(r io.Reader) error
+	ReadValue(r io.Reader) error
+
+	// 设置ValueLoader值提取器
+	SetValueLoader(l ValueLoader)
 
 	// param: key属性名称
 	// param: defaultValue: 默认值

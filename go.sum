@@ -1,5 +1,5 @@
-github.com/xfali/goutils v0.0.6 h1:BAM2l0iBYiA3+dDP0sVFobWmbYhoVJNcyv4zaz0608M=
-github.com/xfali/goutils v0.0.6/go.mod h1:Z1gZz5xVqHiSiwL+8GpzriqfQeGfV5ipSXsZFhnItSA=
+github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
+github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/xfali/goutils v0.0.9 h1:Vnhf1K17NdPxfUO93FTameBlLuoDyof+QtdsVBzwOTk=
 github.com/xfali/goutils v0.0.9/go.mod h1:Z1gZz5xVqHiSiwL+8GpzriqfQeGfV5ipSXsZFhnItSA=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=

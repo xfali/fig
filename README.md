@@ -11,7 +11,7 @@ go get github.com/xfali/fig
 ### 加载配置内容
 ```
 config := fig.New()
-err := config.LoadValue(strings.NewReader(test_ctx_str))
+err := config.ReadValue(strings.NewReader(test_ctx_str))
 if err != nil {
     b.Fatal(err)
 }

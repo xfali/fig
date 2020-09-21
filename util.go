@@ -107,7 +107,7 @@ func GetFloat64(props Properties) func(key string, defaultValue float64) float64
 	}
 }
 
-func LoadFile(filename string, reader ValueReader) (Properties, error) {
+func LoadFile(filename string, reader ValueReader, loader ValueLoader) (Properties, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -116,16 +116,17 @@ func LoadFile(filename string, reader ValueReader) (Properties, error) {
 
 	prop := New()
 	prop.SetValueReader(reader)
-	err = prop.LoadValue(f)
+	prop.SetValueLoader(loader)
+	err = prop.ReadValue(f)
 	return prop, err
 }
 
 func LoadJsonFile(filename string) (Properties, error) {
-	return LoadFile(filename, &JsonReader{})
+	return LoadFile(filename, NewJsonReader(), NewJsonLoader())
 }
 
 func LoadYamlFile(filename string) (Properties, error) {
-	return LoadFile(filename, &YamlReader{})
+	return LoadFile(filename, NewYamlReader(), NewYamlLoader())
 }
 
 // param: prop 属性

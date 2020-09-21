@@ -15,7 +15,7 @@ func TestUtil(t *testing.T) {
 	t.Run("yaml", func(t *testing.T) {
 		config := fig.New(fig.SetValueReader(&fig.JsonReader{}))
 		config.SetValueReader(&fig.YamlReader{})
-		err := config.LoadValue(strings.NewReader(test_yaml_str))
+		err := config.ReadValue(strings.NewReader(test_yaml_str))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -59,7 +59,7 @@ type TestStruct struct {
 func TestFill(t *testing.T) {
 	config := fig.New()
 	config.SetValueReader(&fig.YamlReader{})
-	err := config.LoadValue(strings.NewReader(test_yaml_str))
+	err := config.ReadValue(strings.NewReader(test_yaml_str))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +109,7 @@ func TestFillEx(t *testing.T) {
 	t.Run("json", func(t *testing.T) {
 		config := fig.New()
 		config.SetValueReader(&fig.JsonReader{})
-		err := config.LoadValue(strings.NewReader(test_config_str))
+		err := config.ReadValue(strings.NewReader(test_config_str))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -139,7 +139,7 @@ func TestFillEx(t *testing.T) {
 	t.Run("yaml", func(t *testing.T) {
 		config := fig.New()
 		config.SetValueReader(&fig.YamlReader{})
-		err := config.LoadValue(strings.NewReader(test_yaml_str))
+		err := config.ReadValue(strings.NewReader(test_yaml_str))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -178,8 +178,9 @@ type TestStruct3 struct {
 func TestFillExWithTagName(t *testing.T) {
 	t.Run("json", func(t *testing.T) {
 		config := fig.New()
-		config.SetValueReader(&fig.JsonReader{})
-		err := config.LoadValue(strings.NewReader(test_config_str))
+		config.SetValueReader(fig.NewJsonReader())
+		config.SetValueLoader(fig.NewJsonLoader())
+		err := config.ReadValue(strings.NewReader(test_config_str))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -208,8 +209,40 @@ func TestFillExWithTagName(t *testing.T) {
 
 	t.Run("yaml", func(t *testing.T) {
 		config := fig.New()
-		config.SetValueReader(&fig.YamlReader{})
-		err := config.LoadValue(strings.NewReader(test_yaml_str))
+		config.SetValueReader(fig.NewYamlReader())
+		config.SetValueLoader(fig.NewYamlLoader())
+		err := config.ReadValue(strings.NewReader(test_yaml_str))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		test := TestStruct3{}
+		ret := fig.FillExWithTagName(config, &test, true, "valuePx", "value")
+
+		if ret != nil {
+			t.Fatal(ret)
+		} else {
+			if *test.MaxIdleConn != 500 {
+				t.Fatal("expect MaxIdleConn 500 got: ", test.MaxIdleConn)
+			}
+			if test.conn != 0 {
+				t.Fatal("expect conn 0 got: ", test.conn)
+			}
+			if test.DvrName != "ONLY FOR TEST" {
+				t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DvrName)
+			}
+			if test.dummy3 != 0 {
+				t.Fatal("dummy must be 0")
+			}
+			t.Log(test)
+		}
+	})
+
+	t.Run("yaml and json", func(t *testing.T) {
+		config := fig.New()
+		config.SetValueReader(fig.NewYamlReader())
+		config.SetValueLoader(fig.NewJsonLoader())
+		err := config.ReadValue(strings.NewReader(test_yaml_str))
 		if err != nil {
 			t.Fatal(err)
 		}
