@@ -18,7 +18,11 @@ if err != nil {
 ```
 或者
 ```
-config, err := fig.LoadFile("config.json", fig.NewJsonReader())
+config, err := fig.LoadJsonFile("config.json")
+if err != nil {
+    t.Fatal(err)
+}
+config, err := fig.LoadYamlFile("config.yaml")
 if err != nil {
     t.Fatal(err)
 }
@@ -54,7 +58,7 @@ DataSources:
 
 用法：
 ```
-config, _ := fig.LoadFile("config.json", fig.NewJsonReader())
+config, _ := fig.LoadJsonFile("config.json")
 
 v := fig.GetBool(config)("LogResponse", false)
 
@@ -87,7 +91,7 @@ type TestStruct2 struct {
 ```
 使用fig.Fill方法根据tag填充struct：
 ```
-config, _ := fig.LoadFile("config.json", fig.NewJsonReader())
+config, _ := fig.LoadJsonFile("config.json")
 test := TestStruct{}
 err := fig.Fill(config, &test)
 t.log(test)
