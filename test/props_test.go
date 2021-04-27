@@ -170,6 +170,12 @@ func TestFile(t *testing.T) {
 		}
 		t.Log("env value:", v)
 
+		v = config.Get("this_is_a_test_value", "")
+		if v == "" {
+			t.Fatal("this_is_a_test_value not found")
+		}
+		t.Log("this_is_a_test_value value:", v)
+
 		v = config.Get("Value.floatHaveEnv", "0")
 		if v == "" {
 			t.Fatal("Value.floatHaveEnv not found")

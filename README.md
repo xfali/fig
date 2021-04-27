@@ -76,7 +76,6 @@ v := fig.GetBool(config)("LogResponse", false)
 floatValue := fig.GetFloat32(config)("Value.float", 0)
 ```
 
-
 ## tag
 ### 属性值tag
 fig提供直接填充struct的field的方法，使用tag:"fig"来标识属性名称：
@@ -107,3 +106,6 @@ test := TestStruct{}
 err := fig.Fill(config, &test)
 t.log(test)
 ```
+
+## 使用限制
+目前不允许使用包含“-”的名称作为field，否则无法正常解析（请使用下划线“_”代替）。
