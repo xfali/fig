@@ -37,7 +37,18 @@ port := 0
 err = config.GetValue("ServerPort", &port)
 ```
 ## 读取环境变量
-在配置中使用{{.Env.ENV_NAME}}来配置读取环境变量值，fig在加载时自动使用ENV_NAME的值替换相应内容：
+使用模板函数env读取环境变量:
+* 如果env参数为1个，如环境变量不存在则赋值""
+* 如果env参数为2个，如环境变量不存在则赋值为第二个参数（默认值）
+```
+DataSources:
+  default:
+    DriverNameGet0: "{{ env "CONTEXT_TEST_ENV" }}"
+    DriverNameGet1: "{{ env "CONTEXT_TEST_ENV" "func1_return" }}"
+```
+
+也可以在配置中使用{{.Env.ENV_NAME}}来配置读取环境变量值，fig在加载时自动使用ENV_NAME的值替换相应内容：
+* 如环境变量不存在则返回错误
 ```
 DataSources:
   default:

@@ -181,7 +181,9 @@ func (ctx *DefaultProperties) ExecTemplate(r io.Reader) (io.Reader, error) {
 		return nil, err
 	}
 
-	tpl, ok := template.New("").Option("missingkey=error").Parse(buf.String())
+	tpl, ok := template.New("").Option("missingkey=error").Funcs(template.FuncMap{
+		"env": ctx.getEnv,
+	}).Parse(buf.String())
 	if ok != nil {
 		logf("parse error")
 		return nil, ok
@@ -193,6 +195,25 @@ func (ctx *DefaultProperties) ExecTemplate(r io.Reader) (io.Reader, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+func (ctx *DefaultProperties) getEnv(arg ...string) string {
+	if len(arg) == 0 {
+		return ""
+	} else {
+		ret := ""
+		if len(arg) > 1 {
+			ret = arg[1]
+		}
+		key := arg[0]
+		if len(key) > 5 && key[:5] == ".Env." {
+			key = key[5:]
+		}
+		if v, ok := ctx.Env[key]; ok {
+			return v
+		}
+		return ret
+	}
 }
 
 type JsonReader struct{}

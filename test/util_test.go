@@ -47,13 +47,15 @@ func TestUtil(t *testing.T) {
 }
 
 type TestStruct struct {
-	dummy1      int
-	Port        int  `fig:"ServerPort"`
-	LogResponse bool `fig:"LogResponse"`
-	dummy2      int
-	FloatValue  float32 `fig:"Value.float"`
-	DriverName  string  `fig:"DataSources.default.DriverName"`
-	dummy3      int
+	dummy1         int
+	Port           int  `fig:"ServerPort"`
+	LogResponse    bool `fig:"LogResponse"`
+	dummy2         int
+	FloatValue     float32 `fig:"Value.float"`
+	DriverName     string  `fig:"DataSources.default.DriverName"`
+	DriverNameGet1 string  `fig:"DataSources.default.DriverNameGet1"`
+	DriverNameGet3 string  `fig:"DataSources.default.DriverNameGet3"`
+	dummy3         int
 }
 
 func TestFill(t *testing.T) {
@@ -63,7 +65,19 @@ func TestFill(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	test(config, t)
 
+	config = fig.New()
+	config.SetValueReader(&fig.JsonReader{})
+	config.SetValueLoader(&fig.JsonLoader{})
+	err = config.ReadValue(strings.NewReader(test_config_str))
+	if err != nil {
+		t.Fatal(err)
+	}
+	test(config, t)
+}
+
+func test(config fig.Properties, t *testing.T) {
 	test := TestStruct{}
 	ret := fig.Fill(config, &test)
 
@@ -81,6 +95,12 @@ func TestFill(t *testing.T) {
 		}
 		if test.DriverName != "ONLY FOR TEST" {
 			t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DriverName)
+		}
+		if test.DriverNameGet1 != "ONLY FOR TEST" {
+			t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DriverName)
+		}
+		if test.DriverNameGet3 != "func3_return" {
+			t.Fatal("expect DriverName func3_return got: ", test.DriverName)
 		}
 		if test.dummy1 != 0 || test.dummy2 != 0 || test.dummy3 != 0 {
 			t.Fatal("dummy must be 0")
@@ -269,4 +289,3 @@ func TestFillExWithTagName(t *testing.T) {
 		}
 	})
 }
-

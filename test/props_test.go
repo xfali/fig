@@ -22,10 +22,18 @@ var test_config_str = `
   "LogInnerLevel": 1,
   "LogClient": true,
   "ServerPort": 8080,
+  "Value": {
+    "float": 1.5
+  },
 
   "DataSources": {
     "default": {
       "DriverName": "{{.Env.CONTEXT_TEST_ENV}}",
+	  "DriverNameGet0": "{{ env "CONTEXT_TEST_ENV" }}",
+      "DriverNameGet1": "{{ env "CONTEXT_TEST_ENV" "func1_return" }}",
+      "DriverNameGet2": "{{ env ".Env.CONTEXT_TEST_ENV" "func2_return" }}",
+      "DriverNameGet3": "{{ env "NOT_EXIST" "func3_return" }}",
+	  "DriverNameGet4": "{{ env "NOT_EXIST" }}",
       "DriverInfo": "root:123@tcp(localhost:3306)/test?charset=utf8",
       "MaxConn": 1000,
       "MaxIdleConn": 500,
@@ -49,6 +57,11 @@ var test_yaml_str = `
   DataSources: 
     default: 
       DriverName: "{{.Env.CONTEXT_TEST_ENV}}"
+      DriverNameGet0: "{{ env "CONTEXT_TEST_ENV" }}"
+      DriverNameGet1: "{{ env "CONTEXT_TEST_ENV" "func1_return" }}"
+      DriverNameGet2: "{{ env ".Env.CONTEXT_TEST_ENV" "func2_return" }}"
+      DriverNameGet3: "{{ env "NOT_EXIST" "func3_return" }}"
+      DriverNameGet4: "{{ env "NOT_EXIST" }}"
       DriverInfo: "root:123@tcp(localhost:3306)/test?charset=utf8"
       MaxConn: 1000
       MaxIdleConn: 500
@@ -76,6 +89,45 @@ func TestFile(t *testing.T) {
 		if v == "" {
 			t.Fatal("DataSources.default.DriverName not found")
 		}
+		v = config.Get("DataSources.default.DriverNameGet1", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet1 not found")
+		}
+		if v != "ONLY FOR TEST" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet0", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet0 not found")
+		}
+		if v != "ONLY FOR TEST" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet1", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet1 not found")
+		}
+		if v != "ONLY FOR TEST" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet2", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet2 not found")
+		}
+		if v != "ONLY FOR TEST" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet3", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet3 not found")
+		}
+		if v != "func3_return" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet4", "")
+		if v != "" {
+			t.Fatal("DataSources.default.DriverNameGet3 must not found")
+		}
 		t.Log("DataSources.default.DriverName value:", v)
 	})
 
@@ -102,6 +154,38 @@ func TestFile(t *testing.T) {
 		v = config.Get("DataSources.default.DriverName", "")
 		if v == "" {
 			t.Fatal("DataSources.default.DriverName not found")
+		}
+		v = config.Get("DataSources.default.DriverNameGet0", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet0 not found")
+		}
+		if v != "ONLY FOR TEST" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet1", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet1 not found")
+		}
+		if v != "ONLY FOR TEST" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet2", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet2 not found")
+		}
+		if v != "ONLY FOR TEST" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet3", "")
+		if v == "" {
+			t.Fatal("DataSources.default.DriverNameGet3 not found")
+		}
+		if v != "func3_return" {
+			t.Fatal("not match")
+		}
+		v = config.Get("DataSources.default.DriverNameGet4", "")
+		if v != "" {
+			t.Fatal("DataSources.default.DriverNameGet3 must not found")
 		}
 		t.Log("DataSources.default.DriverName value:", v)
 	})
