@@ -23,7 +23,9 @@ var test_config_str = `
   "LogClient": true,
   "ServerPort": 8080,
   "Value": {
-    "float": 1.5
+    "float": 1.5,
+    "floatHaveEnv": {{ env "CONTEXT_TEST_FLOAT_ENV" 1.6 }},
+	"floatEnv": {{ env "NOT_EXIST" 1.7 }}
   },
 
   "DataSources": {
@@ -33,7 +35,6 @@ var test_config_str = `
       "DriverNameGet1": "{{ env "CONTEXT_TEST_ENV" "func1_return" }}",
       "DriverNameGet2": "{{ env ".Env.CONTEXT_TEST_ENV" "func2_return" }}",
       "DriverNameGet3": "{{ env "NOT_EXIST" "func3_return" }}",
-	  "DriverNameGet4": "{{ env "NOT_EXIST" }}",
       "DriverInfo": "root:123@tcp(localhost:3306)/test?charset=utf8",
       "MaxConn": 1000,
       "MaxIdleConn": 500,
@@ -53,6 +54,8 @@ var test_yaml_str = `
   ServerPort: 8080
   Value:
     float: 1.5
+    floatHaveEnv: {{ env "CONTEXT_TEST_FLOAT_ENV" 1.6 }}
+    floatEnv: {{ env "NOT_EXIST" 1.7 }}
 
   DataSources: 
     default: 
@@ -61,7 +64,6 @@ var test_yaml_str = `
       DriverNameGet1: "{{ env "CONTEXT_TEST_ENV" "func1_return" }}"
       DriverNameGet2: "{{ env ".Env.CONTEXT_TEST_ENV" "func2_return" }}"
       DriverNameGet3: "{{ env "NOT_EXIST" "func3_return" }}"
-      DriverNameGet4: "{{ env "NOT_EXIST" }}"
       DriverInfo: "root:123@tcp(localhost:3306)/test?charset=utf8"
       MaxConn: 1000
       MaxIdleConn: 500
@@ -70,6 +72,7 @@ var test_yaml_str = `
 
 func init() {
 	os.Setenv("CONTEXT_TEST_ENV", "ONLY FOR TEST")
+	os.Setenv("CONTEXT_TEST_FLOAT_ENV", "1.1")
 }
 
 func TestFile(t *testing.T) {
@@ -84,6 +87,22 @@ func TestFile(t *testing.T) {
 			t.Fatal("LogResponse not found")
 		}
 		t.Log("env value:", v)
+
+		v = config.Get("Value.floatHaveEnv", "0")
+		if v == "" {
+			t.Fatal("Value.floatHaveEnv not found")
+		}
+		if v != "1.1" {
+			t.Fatal("not match")
+		}
+
+		v = config.Get("Value.floatEnv", "0")
+		if v == "" {
+			t.Fatal("Value.floatEnv not found")
+		}
+		if v != "1.7" {
+			t.Fatal("not match")
+		}
 
 		v = config.Get("DataSources.default.DriverName", "")
 		if v == "" {
@@ -150,6 +169,22 @@ func TestFile(t *testing.T) {
 			t.Fatal("LogResponse not found")
 		}
 		t.Log("env value:", v)
+
+		v = config.Get("Value.floatHaveEnv", "0")
+		if v == "" {
+			t.Fatal("Value.floatHaveEnv not found")
+		}
+		if v != "1.1" {
+			t.Fatal("not match")
+		}
+
+		v = config.Get("Value.floatEnv", "0")
+		if v == "" {
+			t.Fatal("Value.floatEnv not found")
+		}
+		if v != "1.7" {
+			t.Fatal("not match")
+		}
 
 		v = config.Get("DataSources.default.DriverName", "")
 		if v == "" {

@@ -8,8 +8,10 @@ package fig
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 	"sync"
 	"text/template"
@@ -182,7 +184,7 @@ func (ctx *DefaultProperties) ExecTemplate(r io.Reader) (io.Reader, error) {
 	}
 
 	tpl, ok := template.New("").Option("missingkey=error").Funcs(template.FuncMap{
-		"env": ctx.getEnv,
+		"env": ctx.getEnvValue,
 	}).Parse(buf.String())
 	if ok != nil {
 		logf("parse error")
@@ -213,6 +215,21 @@ func (ctx *DefaultProperties) getEnv(arg ...string) string {
 			return v
 		}
 		return ret
+	}
+}
+
+func (ctx *DefaultProperties) getEnvValue(key string, arg ...reflect.Value) (reflect.Value, error) {
+	if len(key) > 5 && key[:5] == ".Env." {
+		key = key[5:]
+	}
+	if v, ok := ctx.Env[key]; ok {
+		return reflect.ValueOf(v), nil
+	}
+
+	if len(arg) == 0 {
+		return reflect.Value{}, errors.New("no value")
+	} else {
+		return arg[0], nil
 	}
 }
 

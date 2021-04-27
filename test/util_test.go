@@ -47,15 +47,17 @@ func TestUtil(t *testing.T) {
 }
 
 type TestStruct struct {
-	dummy1         int
-	Port           int  `fig:"ServerPort"`
-	LogResponse    bool `fig:"LogResponse"`
-	dummy2         int
-	FloatValue     float32 `fig:"Value.float"`
-	DriverName     string  `fig:"DataSources.default.DriverName"`
-	DriverNameGet1 string  `fig:"DataSources.default.DriverNameGet1"`
-	DriverNameGet3 string  `fig:"DataSources.default.DriverNameGet3"`
-	dummy3         int
+	dummy1            int
+	Port              int  `fig:"ServerPort"`
+	LogResponse       bool `fig:"LogResponse"`
+	dummy2            int
+	FloatValue        float32 `fig:"Value.float"`
+	FloatHaveEnvValue float32 `fig:"Value.floatHaveEnv"`
+	FloatEnvValue     float32 `fig:"Value.floatEnv"`
+	DriverName        string  `fig:"DataSources.default.DriverName"`
+	DriverNameGet1    string  `fig:"DataSources.default.DriverNameGet1"`
+	DriverNameGet3    string  `fig:"DataSources.default.DriverNameGet3"`
+	dummy3            int
 }
 
 func TestFill(t *testing.T) {
@@ -92,6 +94,12 @@ func test(config fig.Properties, t *testing.T) {
 		}
 		if test.FloatValue != 1.5 {
 			t.Fatal("expect FloatValue 1.5 got: ", test.FloatValue)
+		}
+		if test.FloatHaveEnvValue != 1.1 {
+			t.Fatal("expect FloatHaveEnvValue 1.1 got: ", test.FloatEnvValue)
+		}
+		if test.FloatEnvValue != 1.7 {
+			t.Fatal("expect FloatEnvValue 1.7 got: ", test.FloatEnvValue)
 		}
 		if test.DriverName != "ONLY FOR TEST" {
 			t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DriverName)

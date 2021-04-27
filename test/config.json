@@ -7,7 +7,9 @@
   "LogClient": true,
   "ServerPort": 8080,
   "Value": {
-    "float": 1.5
+    "float": 1.5,
+    "floatHaveEnv": {{ env "CONTEXT_TEST_FLOAT_ENV" 1.6 }},
+    "floatEnv": {{ env "NOT_EXIST" 1.7 }}
   },
   "DataSources": {
     "default": {
@@ -16,7 +18,6 @@
       "DriverNameGet1": "{{ env "CONTEXT_TEST_ENV" "func1_return" }}",
       "DriverNameGet2": "{{ env ".Env.CONTEXT_TEST_ENV" "func2_return" }}",
       "DriverNameGet3": "{{ env "NOT_EXIST" "func3_return" }}",
-      "DriverNameGet4": "{{ env "NOT_EXIST" }}",
       "DriverInfo": "root:123@tcp(localhost:3306)/test?charset=utf8",
       "MaxConn": 1000,
       "MaxIdleConn": 500,
