@@ -203,6 +203,17 @@ type TestStruct3 struct {
 	dummy3      int
 }
 
+type TestStruct4 struct {
+	x           string `valuePx:"DataSources.default"`
+	x2          string `figPx:"DataSources.default"`
+	MaxIdleConn *int
+	DvrName     string `fig:"DriverName"`
+	conn        int    `value:"MaxConn"`
+	dummy3      int
+	DefaultInt  int  `value:"NoValue,default=10"`
+	DefaultBool bool `value:"NoValue,default=true"`
+}
+
 func TestFillExWithTagName(t *testing.T) {
 	t.Run("json", func(t *testing.T) {
 		config := fig.New()
@@ -295,5 +306,116 @@ func TestFillExWithTagName(t *testing.T) {
 			}
 			t.Log(test)
 		}
+	})
+}
+
+func TestFillExWithTagNames(t *testing.T) {
+	test := TestStruct4{}
+	t.Run("json", func(t *testing.T) {
+		config := fig.New()
+		config.SetValueReader(fig.NewJsonReader())
+		config.SetValueLoader(fig.NewJsonLoader())
+		err := config.ReadValue(strings.NewReader(test_config_str))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		ret := fig.FillExWithTagNames(config, &test, true, []string{fig.TagPrefixName, "valuePx"}, []string{fig.TagName, "value"})
+
+		if ret != nil {
+			t.Log(ret)
+		}
+
+		if *test.MaxIdleConn != 500 {
+			t.Fatal("expect MaxIdleConn 500 got: ", test.MaxIdleConn)
+		}
+		if test.conn != 0 {
+			t.Fatal("expect conn 0 got: ", test.conn)
+		}
+		if test.DvrName != "ONLY FOR TEST" {
+			t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DvrName)
+		}
+		if test.dummy3 != 0 {
+			t.Fatal("dummy must be 0")
+		}
+		if test.DefaultInt != 10 {
+			t.Fatal("expect 10 but get ", test.DefaultInt)
+		}
+		if !test.DefaultBool {
+			t.Fatal("expect true but get ", test.DefaultBool)
+		}
+		t.Log(test)
+	})
+
+	t.Run("yaml", func(t *testing.T) {
+		config := fig.New()
+		config.SetValueReader(fig.NewYamlReader())
+		config.SetValueLoader(fig.NewYamlLoader())
+		err := config.ReadValue(strings.NewReader(test_yaml_str))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		ret := fig.FillExWithTagNames(config, &test, true, []string{fig.TagPrefixName, "valuePx"}, []string{fig.TagName, "value"})
+
+		if ret != nil {
+			t.Log(ret)
+		}
+
+		if *test.MaxIdleConn != 500 {
+			t.Fatal("expect MaxIdleConn 500 got: ", test.MaxIdleConn)
+		}
+		if test.conn != 0 {
+			t.Fatal("expect conn 0 got: ", test.conn)
+		}
+		if test.DvrName != "ONLY FOR TEST" {
+			t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DvrName)
+		}
+		if test.dummy3 != 0 {
+			t.Fatal("dummy must be 0")
+		}
+		if test.DefaultInt != 10 {
+			t.Fatal("expect 10 but get ", test.DefaultInt)
+		}
+		if !test.DefaultBool {
+			t.Fatal("expect true but get ", test.DefaultBool)
+		}
+		t.Log(test)
+	})
+
+	t.Run("yaml and json", func(t *testing.T) {
+		config := fig.New()
+		config.SetValueReader(fig.NewYamlReader())
+		config.SetValueLoader(fig.NewJsonLoader())
+		err := config.ReadValue(strings.NewReader(test_yaml_str))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		ret := fig.FillExWithTagNames(config, &test, true, []string{fig.TagPrefixName, "valuePx"}, []string{fig.TagName, "value"})
+
+		if ret != nil {
+			t.Log(ret)
+		}
+
+		if *test.MaxIdleConn != 500 {
+			t.Fatal("expect MaxIdleConn 500 got: ", test.MaxIdleConn)
+		}
+		if test.conn != 0 {
+			t.Fatal("expect conn 0 got: ", test.conn)
+		}
+		if test.DvrName != "ONLY FOR TEST" {
+			t.Fatal("expect DriverName ONLY FOR TEST got: ", test.DvrName)
+		}
+		if test.dummy3 != 0 {
+			t.Fatal("dummy must be 0")
+		}
+		if test.DefaultInt != 10 {
+			t.Fatal("expect 10 but get ", test.DefaultInt)
+		}
+		if !test.DefaultBool {
+			t.Fatal("expect true but get ", test.DefaultBool)
+		}
+		t.Log(test)
 	})
 }
